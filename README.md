@@ -163,3 +163,11 @@ Para forçar a atualização:
 -   `notifications.db`: Banco de dados SQLite contendo os inscritos. **Faça backup deste arquivo** se mudar de servidor.
     > **Nota sobre Auto-Limpeza:** O sistema detecta automaticamente inscrições inválidas (Erro 410 Gone) durante o envio e as remove do banco para manter a performance e higiene dos dados.
 -   `.config.php`: Suas senhas. **Nunca** compartilhe ou coloque em repositório público.
+
+---
+
+## 👨‍💻 Autor
+
+Feito com ❤️ por **Joandson Bezerra** 👋🏽 Entre em contato!
+
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/joandson19)
