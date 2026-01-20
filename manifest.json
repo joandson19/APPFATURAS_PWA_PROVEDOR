@@ -1,0 +1,20 @@
+{
+    "name": "FaturaFacil",
+    "short_name": "FaturaFacil",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#00baa4",
+    "icons": [
+        {
+            "src": "assets/img/logo_icon.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "assets/img/logo_icon.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
