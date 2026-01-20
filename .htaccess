@@ -1,0 +1,20 @@
+# Proteger arquivos sensíveis
+<Files .config.php>
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files .notifications.db>
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files notifications.db>
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files vapid_keys.json>
+    Order allow,deny
+    Deny from all
+</Files>
