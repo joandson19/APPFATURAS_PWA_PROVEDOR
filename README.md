@@ -168,6 +168,7 @@ Para forçar a atualização:
 
 ## 👨‍💻 Autor
 
-Feito com ❤️ por **Joandson Bezerra** 👋🏽 Entre em contato!
+Feito por **Joandson Bezerra** 👋🏽 Entre em contato!
 
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/joandson19)
+
