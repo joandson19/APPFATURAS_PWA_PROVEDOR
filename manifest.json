@@ -1,6 +1,6 @@
 {
-    "name": "FaturaFacil",
-    "short_name": "FaturaFacil",
+    "name": "AlagoinhasTelecom",
+    "short_name": "AlagoinhasTelecom",
     "start_url": "./index.html",
     "display": "standalone",
     "background_color": "#ffffff",

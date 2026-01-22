@@ -1,13 +1,14 @@
-# 📱 FaturaFacil PWA
+# 📱 FaturaFacil PWA - Alagoinhas Telecom
 
-Este é o projeto **FaturaFacil**, um PWA (Progressive Web App) desenvolvido para facilitar o acesso de clientes de provedores que usam o SGP como ERP. Nele o clientes em acesso a faturas, contratos e informações de manutenção.
+Este é o projeto **FaturaFacil**, um PWA (Progressive Web App) desenvolvido para facilitar o acesso de clientes da Alagoinhas Telecom a faturas, contratos e informações de manutenção.
 
 O sistema integra diretamente com o SGP (Sistema de Gestão de Provedor) via API.
 
 ## ✨ Funcionalidades Principais
 
--   **Autenticação Simplificada:** Login via CPF/CNPJ.
+-   **Autenticação Simplificada:** Login via CPF/CNPJ com opção "Manter conectado" (persistência segura).
 -   **Segunda Via de Fatura:** Visualização de faturas em aberto e vencidas.
+-   **Histórico de Pagamentos:** Consulta de faturas pagas recentemente com link para recibo.
 -   **Pagamento via Pix:** Geração de QR Code e "Copia e Cola" instantâneo.
 -   **Desbloqueio de Confiança:** Liberação temporária de sinal (se permitido pelo plano).
 -   **Alertas de Manutenção:** Popups automáticos informando sobre instabilidades na rede (dados do SGP).
@@ -66,11 +67,6 @@ Para rodar este projeto com 100% de funcionalidade, seu servidor precisa atender
 
 O sistema utiliza Web Push Notifications (VAPID). As chaves de criptografia são geradas **automaticamente** pelo servidor na primeira execução.
 
-**Compatibilidade:**
--   **Android/iOS (App Instalado):** Funciona 100%.
--   **Navegador Móvel (Chrome/Safari):** Funciona mesmo sem instalar o App.
--   **Desktop (PC):** Desativado intencionalmente.
-
 1.  **Geração de Chaves:**
     Acesse a URL: `https://seu-dominio.com/api/push_config.php?get_public=1`
     Se retornar um JSON com `publicKey`, a configuração automática funcionou.
@@ -89,12 +85,7 @@ O sistema possui um **Webhook Seguro** para integração com o SGP ou outros sis
 | Parâmetro | Descrição | Exemplo |
 | :--- | :--- | :--- |
 | `token` | **Senha de segurança** definida no `.config.php` | `123456` |
-| `contrato` | ID do contrato ou CPF (sem pontuação) | `1234`, `00011122233` |
-| `telefone` | Telefone do cliente (com ou sem DDD/DDI) | `75999999999` ou `5575...` |
-| `target` | Use `all` para enviar para todos | `all` |
-
-> **Nota:** É obrigatório informar `contrato` OU `telefone` OU `target=all`.
-> O sistema remove automaticamente o prefixo `55` se enviado pelo SGP (ex: `5575` vira `75`).
+| `contrato` | ID do contrato, CPF (sem pontuação) ou `all` | `1234`, `00011122233`, `all` |
 
 ### Parâmetros Opcionais
 
@@ -147,13 +138,6 @@ Para que o botão "Instalar App" apareça:
 2.  O arquivo `manifest.json` deve estar acessível na raiz.
 3.  O `sw.js` (Service Worker) deve carregar sem erros.
 
-### Como Forçar Atualização nos Usuários
-Se você alterar arquivos `js` ou `css`, os usuários antigos **não verão a mudança imediatamente** por causa do cache.
-Para forçar a atualização:
-1. Abra o arquivo `sw.js`.
-2. Altere a primeira linha: `const CACHE_NAME = 'faturafacil-v2.3';` (Incremente o número).
-3. Salve. O sistema fará a limpeza automática do cache antigo no próximo acesso do usuário.
-
 ---
 
 ## 🛠️ Manutenção e Arquivos Importantes
@@ -163,12 +147,3 @@ Para forçar a atualização:
 -   `notifications.db`: Banco de dados SQLite contendo os inscritos. **Faça backup deste arquivo** se mudar de servidor.
     > **Nota sobre Auto-Limpeza:** O sistema detecta automaticamente inscrições inválidas (Erro 410 Gone) durante o envio e as remove do banco para manter a performance e higiene dos dados.
 -   `.config.php`: Suas senhas. **Nunca** compartilhe ou coloque em repositório público.
-
----
-
-## 👨‍💻 Autor
-
-Feito por **Joandson Bezerra** 👋🏽 Entre em contato!
-
-[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/joandson19)
-

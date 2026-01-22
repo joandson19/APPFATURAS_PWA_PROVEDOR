@@ -95,15 +95,16 @@ $(document).ready(function () {
         return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
 
-    if (isPwa()) {
-        const savedCpf = localStorage.getItem('saved_cpf');
-        if (savedCpf) {
-            $('#cpf').val(savedCpf);
-            // Small delay to ensure everything is ready
-            setTimeout(() => {
-                $('#search-form').submit();
-            }, 100);
-        }
+    // === Auto-Login Logic ===
+    // Check if we have a saved session (works for both PWA and Browser with "Remember Me")
+    const savedCpf = localStorage.getItem('saved_cpf');
+    if (savedCpf) {
+        $('#cpf').val(savedCpf);
+        $('#remember-me').prop('checked', true);
+        // Small delay to ensure everything is ready
+        setTimeout(() => {
+            $('#search-form').submit();
+        }, 100);
     }
 
     // === Navigation ===
@@ -125,9 +126,8 @@ $(document).ready(function () {
 
     // === Logout Logic ===
     $('.btn-logout').on('click', function () {
-        if (isPwa()) {
-            localStorage.removeItem('saved_cpf');
-        }
+        // Always remove saved session on explicit logout
+        localStorage.removeItem('saved_cpf');
         // Clear data
         currentContracts = [];
         $('#cpf').val('');
@@ -156,11 +156,13 @@ $(document).ready(function () {
                 // SGP returns an array in response
                 if (Array.isArray(response) && response.length > 0) {
 
-                    // SUCCESS! Save CPF only if PWA
-                    if (isPwa()) {
+                    // SUCCESS!
+                    const shouldRemember = $('#remember-me').is(':checked');
+
+                    if (shouldRemember) {
                         localStorage.setItem('saved_cpf', cpf);
                     } else {
-                        // Ensure we don't accidentally keep it if they used PWA before then switched to browser (unlikely but safe)
+                        // If user didn't check remember me, ensure we don't have old garbage
                         localStorage.removeItem('saved_cpf');
                     }
 
@@ -224,13 +226,11 @@ $(document).ready(function () {
 
     function selectContract(contract) {
         selectedContract = contract;
-        $('#contract-id-display').text(contract.contrato || contract.id_contrato); // Adjust field name based on actual API return
+        $('#contract-id-display').text(contract.contrato || contract.id_contrato);
         $('#user-name-display').text(contract.razao_social || contract.nome || 'Cliente');
 
         // Check for Unlock Button
         const status = (contract.status || '').toLowerCase();
-        // Assuming 'suspenso' or similar indicates blockage. 
-        // User said "informe de pagamento ou promessa", usually for blocked services.
         if (status.includes('suspenso') || status.includes('bloqueado')) {
             $('#unlock-container').removeClass('hidden');
         } else {
@@ -243,12 +243,36 @@ $(document).ready(function () {
         // Check for Maintenance
         checkMaintenance();
 
-        // Auto-Sync Push Data (Update Phone if already subscribed)
+        // Auto-Sync Push Data
         if (isPwa() || isMobile()) {
             setTimeout(() => subscribeUserToPush(true), 1000);
         }
 
-        fetchInvoices(contract.contrato || contract.id_contrato);
+        // Default to Open Invoices
+        switchTab('open');
+    }
+
+    // === Tabs Logic ===
+    $('.tab-btn').on('click', function () {
+        const tab = $(this).data('tab');
+        switchTab(tab);
+    });
+
+    function switchTab(tab) {
+        // Update Buttons
+        $('.tab-btn').removeClass('active');
+        $(`.tab-btn[data-tab="${tab}"]`).addClass('active');
+
+        // Update Content
+        $('.tab-content').addClass('hidden').removeClass('active'); // Ensure hidden is applied
+        const target = $(`.tab-content[data-tab="${tab}"]`);
+        target.removeClass('hidden').addClass('active');
+
+        if (tab === 'open') {
+            fetchInvoices(selectedContract.contrato || selectedContract.id_contrato);
+        } else if (tab === 'paid') {
+            fetchPaidInvoices(selectedContract.contrato || selectedContract.id_contrato);
+        }
     }
 
     function formatDateTime(dateString) {
@@ -395,7 +419,10 @@ $(document).ready(function () {
     // === Logic: Fetch Invoices ===
     function fetchInvoices(contractId) {
         showView('invoices-view');
-        $('#invoices-list').html('<div class="spinner" style="border-color: var(--primary); margin: 2rem auto;"></div>');
+        // Only show spinner if list is empty to avoid flickering on re-fetch
+        if ($('#invoices-list').children().length === 0) {
+            $('#invoices-list').html('<div class="spinner" style="border-color: var(--primary); margin: 2rem auto;"></div>');
+        }
 
         $.ajax({
             url: 'api/invoices.php',
@@ -542,11 +569,49 @@ $(document).ready(function () {
         });
     });
 
-    $(document).on('click', '.btn-pix-copy', function () {
-        const code = $(this).data('code');
-        navigator.clipboard.writeText(code).then(() => {
-            showToast('Pix Copia e Cola copiado!', 'success');
+    // === Copy To Clipboard Handlers ===
+    function handleCopy(btn, content) {
+        if (!content) return;
+        navigator.clipboard.writeText(content).then(() => {
+            const originalHtml = btn.html();
+            const originalColor = btn.css('background-color');
+            const originalBorder = btn.css('border-color');
+            const originalColorText = btn.css('color');
+
+            // Visual Feedback
+            btn.prop('disabled', true)
+                .html('<i class="fa-solid fa-check"></i> Copiado!')
+                .css({
+                    'background-color': '#10b981',
+                    'border-color': '#10b981',
+                    'color': '#fff'
+                });
+
+            // Revert after 3s
+            setTimeout(() => {
+                btn.prop('disabled', false)
+                    .html(originalHtml)
+                    .css({
+                        'background-color': originalColor,
+                        'border-color': originalBorder,
+                        'color': originalColorText
+                    });
+            }, 3000);
+
+            // Optional Toast (Keep existing or remove? keeping for redundancy/screen readers)
+            // showToast('Copiado para a área de transferência!', 'success'); // Commented out to reduce noise, button feedback is enough
+        }).catch(err => {
+            console.error('Erro ao copiar', err);
+            showToast('Erro ao copiar.', 'error');
         });
+    }
+
+    $(document).on('click', '.btn-copy', function () {
+        handleCopy($(this), $(this).data('code'));
+    });
+
+    $(document).on('click', '.btn-pix-copy', function () {
+        handleCopy($(this), $(this).data('code'));
     });
 
     $(document).on('click', '.btn-pix-qr', function () {
@@ -800,13 +865,83 @@ $(document).ready(function () {
                 }
             },
             error: function () {
-                showToast('Erro de comunicação.', 'error');
+                showToast('Erro ao enviar.', 'error');
+                btn.prop('disabled', false).html(originalHtml);
             },
             complete: function () {
-                btn.prop('disabled', false).html(originalHtml);
+                // If success or error, button state might need reset if not successful 
+                // In success case usually better to leave as "Sent" or similar, but for now we follow old logic
+                setTimeout(() => {
+                    if (btn.prop('disabled')) { // If still disabled (success flow usually keeps it or changes text)
+                        btn.prop('disabled', false).html(originalHtml);
+                    }
+                }, 3000);
             }
         });
     }
+
+    // === Paid Invoices Logic ===
+    function fetchPaidInvoices(contractId) {
+        const list = $('#paid-invoices-list');
+        list.html('<div class="spinner" style="border-color: var(--primary); margin: 2rem auto;"></div>');
+
+        $.ajax({
+            url: 'api/paid_invoices.php',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ contract_id: contractId }),
+            success: function (response) {
+                let invoices = [];
+                // API SGP usually returns { titulos: [...] } for /titulos endpoint
+                if (response.titulos) {
+                    invoices = response.titulos;
+                } else if (Array.isArray(response)) {
+                    invoices = response;
+                }
+                renderPaidInvoices(invoices);
+            },
+            error: function () {
+                list.html('<p style="text-align:center; color: var(--text-muted)">Erro ao carregar histórico.</p>');
+            }
+        });
+    }
+
+    function renderPaidInvoices(invoices) {
+        const list = $('#paid-invoices-list');
+        list.empty();
+
+        if (!invoices || invoices.length === 0) {
+            list.html('<p style="text-align:center; color: var(--text-muted)">Nenhuma fatura paga encontrada recentemente.</p>');
+            return;
+        }
+
+        invoices.forEach(inv => {
+            const html = `
+                <div class="card-item invoice-card" style="border-left: 4px solid #10b981; opacity: 0.8;">
+                    <div class="invoice-info">
+                        <div>
+                            <div class="card-subtitle">Pago em</div>
+                            <div class="card-title">${formatDate(inv.dataPagamento || inv.data_pagamento)}</div>
+                             <div class="card-subtitle" style="font-size: 0.75rem; margin-top:4px">Venc: ${formatDate(inv.dataVencimento || inv.data_vencimento)}</div>
+                        </div>
+                        <div style="text-align: right">
+                            <div class="card-subtitle">Valor Pago</div>
+                            <div class="invoice-value" style="color: #10b981">R$ ${parseFloat(inv.valorPago || inv.valor).toFixed(2).replace('.', ',')}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="invoice-actions">
+                        ${inv.link ? `
+                        <a href="${inv.link}" target="_blank" class="btn-action btn-download" title="Ver Recibo/Boleto">
+                            <i class="fa-solid fa-file-invoice-dollar"></i> Recibo
+                        </a>` : ''}
+                    </div>
+                </div>
+            `;
+            list.append(html);
+        });
+    }
+
 
     // === Unlock Handler ===
     $('#btn-unlock').on('click', function () {

@@ -1,15 +1,15 @@
-const CACHE_NAME = 'faturafacil-v2.3';
+const CACHE_NAME = 'faturafacil-v2.9';
 const urlsToCache = [
     './',
     './index.html',
-    './assets/css/style.css',
-    './assets/js/main.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
+    './assets/css/style.css?v=20260122',
+    './assets/js/main.js?v=20260122',
+    'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js?v=20260122',
     './assets/img/logo.png',
     './assets/img/logo_icon.png',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css',
-    'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js'
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css?v=20260122',
+    'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.min.js?v=20260122',
+    'https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js?v=20260122'
 ];
 
 self.addEventListener('install', (event) => {
