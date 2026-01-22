@@ -1,6 +1,6 @@
-# 📱 FaturaFacil PWA - Alagoinhas Telecom
+# 📱 FaturaFacil PWA
 
-Este é o projeto **FaturaFacil**, um PWA (Progressive Web App) desenvolvido para facilitar o acesso de clientes da Alagoinhas Telecom a faturas, contratos e informações de manutenção.
+Este é o projeto **FaturaFacil**, um PWA (Progressive Web App) desenvolvido para facilitar o acesso de clientes às faturas, contratos e informações de manutenção.
 
 O sistema integra diretamente com o SGP (Sistema de Gestão de Provedor) via API.
 
@@ -147,3 +147,4 @@ Para que o botão "Instalar App" apareça:
 -   `notifications.db`: Banco de dados SQLite contendo os inscritos. **Faça backup deste arquivo** se mudar de servidor.
     > **Nota sobre Auto-Limpeza:** O sistema detecta automaticamente inscrições inválidas (Erro 410 Gone) durante o envio e as remove do banco para manter a performance e higiene dos dados.
 -   `.config.php`: Suas senhas. **Nunca** compartilhe ou coloque em repositório público.
+
